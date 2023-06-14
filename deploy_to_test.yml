@@ -3,7 +3,7 @@ name: Deploy to Test - dev
 on:
   push:
     branches:
-      - dev
+      - main
 
 jobs:
 
@@ -26,7 +26,7 @@ jobs:
           nowPassword: ${{ secrets.SN_PASSWORD }}
           nowSourceInstance: ${{ secrets.SN_TEST_INSTANCE }}
           appSysID: ${{ secrets.SN_APP_SYSID }}
-          branch: 'dev'
+          branch: 'main'
 
   unit_test:
     name: Run ATF in Test
