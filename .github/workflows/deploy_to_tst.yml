@@ -1,0 +1,45 @@
+name: Deploy to Test
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+
+   # Purpose of this yaml is to Apply Remote Changes for the branch triggering 
+   # the pipeline to the Test instance and run the Unit Test - ATF Test Suite 
+   # associated with the app. If Test Suite fails, developer gets notified
+
+  build:
+
+    name: Deploy to Test
+    if: "contains(github.event.head_commit.message, 'Deploy to TST')"
+    runs-on: ubuntu-latest
+
+
+    steps:
+      - name: ServiceNow CI/CD Apply Changes
+        uses: ServiceNow/sncicd-apply-changes@2.0.0
+        env:
+          nowUsername: ${{ secrets.SN_USERNAME }}
+          nowPassword: ${{ secrets.SN_PASSWORD }}
+          nowSourceInstance: ${{ secrets.SN_TEST_INSTANCE }}
+          appSysID: ${{ secrets.SN_APP_SYSID }}
+          branch: 'main'
+
+  unit_test:
+    name: Run ATF in Test
+    needs: build   
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: ServiceNow CI/CD Run ATF Test Suite
+        uses: ServiceNow/sncicd-tests-run@2.0.0
+        with:
+          testSuiteSysId: ${{ secrets.SN_ATFTESTSUITE_UT }}
+        env:
+          nowUsername: ${{ secrets.SN_USERNAME }}
+          nowPassword: ${{ secrets.SN_PASSWORD }}
+          nowInstallInstance: ${{ secrets.SN_TEST_INSTANCE }}
